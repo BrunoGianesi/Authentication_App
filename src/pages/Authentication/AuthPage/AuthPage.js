@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback  } from 'react-native';
+import { Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { Logo, TextInputStyle, LoginButton, GoogleLogin, FacebookLogin, Divider, NewAccount } from './styles'
 import Ionic from 'react-native-vector-icons/Ionicons'
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth } from '../../../../firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const HideKeyboard = ({ children }) => (
@@ -13,27 +14,51 @@ const HideKeyboard = ({ children }) => (
     </TouchableWithoutFeedback>
   );
 
+const getSignIn = async () => {
+    try {
+        const value = await AsyncStorage.getItem('SignIn');
+      if(value !== null) {
+        return value;
+        // value previously stored
+      }
+    } catch(e) {
+        alert(e)
+      // error reading value
+    }
+}
+
+const storeSignIn = async (value) => {
+    try {
+      await AsyncStorage.setItem('SignIn', value);
+    } catch (e) {
+    alert(e)
+      // saving error
+    }
+}
 
 export default function AuthPage({ navigation }) {
-    const [isSignedIn, setIsSignedIn] = useState(false);
-    console.log(isSignedIn);
-    const [email, SetEmail] = useState('')
-    const [password, SetPassword] = useState('')
+    const [isSignedIn, setIsSignedIn] = useState('false');
+    const [email, SetEmail] = useState('');
+    const [password, SetPassword] = useState('');
+    getSignIn().then((teste)=>{
+        setIsSignedIn(teste);
+    });
     const handleSignIn = () => {
         signInWithEmailAndPassword(auth, email, password)
         .then((re) => {
-            console.log(re);
-            setIsSignedIn(true);
+            setIsSignedIn('true');
+            storeSignIn('true');
         });
-        console.log(isSignedIn);
-        navigation.navigate('Home')
-        if (isSignedIn === true) {
-            navigation.navigate('Home')
+    };
+    useEffect(() => {
+        if ( isSignedIn === 'true') {
+            navigation.navigate("Home")
         }
-    }
+    }, [isSignedIn]);
+    console.log(email)
     return (
         <HideKeyboard>
-            <View keyboardShouldPersistTaps='handled'>
+            <View keyboardShouldPersistTaps='handled' style={{backgroundColor: 'white', height: '100%'}}>
                 <StatusBar style="auto" />
                 <View
                 style={Logo.container}
