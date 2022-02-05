@@ -8,9 +8,10 @@ import { auth } from './firebase'
 
 import { getItem, storeItem } from './src/utils/AsyncStorage'
 
-import Home from './src/pages/Home/Home';
-import CreateAccount from './src/pages/Authentication/CreateAccount/CreateAccount';
-import AuthPage from './src/pages/Authentication/AuthPage/AuthPage';
+import Home from './src/pages/Home';
+import CreateAccount from './src/pages/Authentication/CreateAccount';
+import AuthPage from './src/pages/Authentication/AuthPage';
+import Loading from './src/pages/Loading';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -20,7 +21,7 @@ export default function App() {
     } else {
         storeItem('SignIn', 'false');
     }
-    });
+  });
   return(
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -28,6 +29,7 @@ export default function App() {
         <Stack.Screen name="AuthPage" component={AuthPage}/>
         
         <Stack.Screen name="CreateAccount" component={CreateAccount}/>
+        <Stack.Screen name="Loading" component={Loading}/>
       </Stack.Navigator>
     </NavigationContainer>
   )
