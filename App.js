@@ -25,11 +25,10 @@ export default function App() {
   return(
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="Home" component={Home}/>
-        <Stack.Screen name="AuthPage" component={AuthPage}/>
+        <Stack.Screen name="Home" component={Home} options={{animationEnabled: false}}/>
+        <Stack.Screen name="AuthPage" component={AuthPage} options={{animationEnabled: false}}/>
         
         <Stack.Screen name="CreateAccount" component={CreateAccount}/>
-        <Stack.Screen name="Loading" component={Loading}/>
       </Stack.Navigator>
     </NavigationContainer>
   )

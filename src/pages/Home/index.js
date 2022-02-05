@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { auth } from '../../../firebase';
 import { useEffect, useState } from 'react';
 import { getItem, storeItem } from '../../utils/AsyncStorage'
+import Loading from '../Loading';
 
 const HideKeyboard = ({ children }) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -11,7 +12,9 @@ const HideKeyboard = ({ children }) => (
     </TouchableWithoutFeedback>
   );
 
+
 export default function Home({ navigation }) {
+    const [isLoading, setLoading] = useState(true);
     const handleSignOut = () => {
         auth
         .signOut()
@@ -22,20 +25,25 @@ export default function Home({ navigation }) {
         })
     }
     const [isSignedIn, setIsSignedIn] = useState('true');
+    
     getItem('SignIn').then((teste)=>{
         setIsSignedIn(teste);
-    });
-    useEffect(() => {
         if ( isSignedIn === 'false') {
             navigation.navigate("AuthPage")
         }
+    });
+    useEffect(() => {
+        setLoading(false);
     }, [isSignedIn]);
     
+    console.log(isLoading);
     return(
         <HideKeyboard>
-            
             <View keyboardShouldPersistTaps='handled' style={{backgroundColor: 'white', height: '100%'}}>
                 <StatusBar hidden={false} translucent={true} backgroundColor={'white'} barStyle={'dark-content'}/>
+                {isLoading == true ? 
+                <Loading/> 
+                :
                 <View style={TextInputStyle.container}>
                     <TouchableOpacity onPress={handleSignOut}>
                         <Text>
@@ -44,7 +52,8 @@ export default function Home({ navigation }) {
                     </TouchableOpacity>
                     <Text style={{justifyContent: 'center', alignContent: 'center'}}>Você entrou no App!!</Text>
                 </View>
-            </View>
+            }
+            </View> 
         </HideKeyboard>
     );
 }

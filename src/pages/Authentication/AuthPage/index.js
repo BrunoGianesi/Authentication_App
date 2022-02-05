@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';;
+import { ActivityIndicator, Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';;
 import { Logo, TextInputStyle, LoginButton, GoogleLogin, Divider, NewAccount } from './styles';
 import Ionic from 'react-native-vector-icons/Ionicons';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from "firebase/auth"
@@ -7,6 +7,8 @@ import { auth } from '../../../../firebase';
 import { useEffect, useState } from 'react';
 import { getItem, storeItem } from '../../../utils/AsyncStorage'
 import * as Google from 'expo-google-app-auth';
+
+import Loading from '../../Loading';
 
 
 const HideKeyboard = ({ children }) => (
@@ -19,6 +21,7 @@ export default function AuthPage({ navigation }) {
     const [isSignedIn, setIsSignedIn] = useState('false');
     const [email, SetEmail] = useState('');
     const [password, SetPassword] = useState('');
+    const [isLoading, setLoading] = useState(true);
     getItem('SignIn').then((teste)=>{
         setIsSignedIn(teste);
     });
@@ -33,9 +36,11 @@ export default function AuthPage({ navigation }) {
         if ( isSignedIn === 'true') {
             navigation.navigate("Home")
         }
+        setLoading(false);
     }, [isSignedIn]);
 
     async function signInWithGoogleAsync() {
+        setLoading(true);
         try {
             const result = await Google.logInAsync({
             androidClientId: '792117341968-0k726d33egg0rnndv9s24ue1av97mff4.apps.googleusercontent.com',
@@ -62,9 +67,11 @@ export default function AuthPage({ navigation }) {
             console.log(e)
             return { error: true };
         }
+        
     }
     return (
         <HideKeyboard>
+            {isLoading == true ? <ActivityIndicator /> :
             <View keyboardShouldPersistTaps='handled' style={{backgroundColor: 'white', height: '100%'}}>
                 <StatusBar style="auto" />
                 <View
@@ -125,6 +132,7 @@ export default function AuthPage({ navigation }) {
                     </TouchableOpacity>
                 </View>
             </View>
+        }
         </HideKeyboard>    
     );
 };
