@@ -3,9 +3,16 @@ import { Text, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback, 
 export default function Loading({ navigation }) {
     
     return(
-        <View>
+        <View style={{backgroundColor: 'blue', position:'absolute'}}>
             <Text>
                 TESTEEEEEEEEEEEEEE
+                sdada
+                dasdsa
+                sdadsa
+                dasdsasda
+                sd
+                sdadasad
+                onAuthStateChanged
             </Text>
         </View>
     );

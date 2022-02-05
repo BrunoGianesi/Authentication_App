@@ -9,7 +9,6 @@ import { getItem, storeItem } from '../../../utils/AsyncStorage'
 import * as Google from 'expo-google-app-auth';
 
 
-
 const HideKeyboard = ({ children }) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       {children}
