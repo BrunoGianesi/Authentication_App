@@ -32,7 +32,6 @@ const storeSignIn = async (value) => {
 }
 
 export default function Home({ navigation }) {
-    
     const handleSignOut = () => {
         auth
         .signOut()
@@ -52,9 +51,6 @@ export default function Home({ navigation }) {
         }
     }, [isSignedIn]);
     
-    // if ( isSignedIn === 'false') {
-    //     navigation.navigate("Home")
-    // }
     return(
         <HideKeyboard>
             

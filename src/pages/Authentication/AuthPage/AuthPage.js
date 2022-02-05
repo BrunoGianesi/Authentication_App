@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { Logo, TextInputStyle, LoginButton, GoogleLogin, FacebookLogin, Divider, NewAccount } from './styles'
-import Ionic from 'react-native-vector-icons/Ionicons'
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { Keyboard, StyleSheet, Text, View, Image, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';;
+import { Logo, TextInputStyle, LoginButton, GoogleLogin, Divider, NewAccount } from './styles';
+import Ionic from 'react-native-vector-icons/Ionicons';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from "firebase/auth"
 import { auth } from '../../../../firebase';
 import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getItem, storeItem } from '../../../utils/AsyncStorage'
+import * as Google from 'expo-google-app-auth';
+
 
 
 const HideKeyboard = ({ children }) => (
@@ -14,40 +16,18 @@ const HideKeyboard = ({ children }) => (
     </TouchableWithoutFeedback>
   );
 
-const getSignIn = async () => {
-    try {
-        const value = await AsyncStorage.getItem('SignIn');
-      if(value !== null) {
-        return value;
-        // value previously stored
-      }
-    } catch(e) {
-        alert(e)
-      // error reading value
-    }
-}
-
-const storeSignIn = async (value) => {
-    try {
-      await AsyncStorage.setItem('SignIn', value);
-    } catch (e) {
-    alert(e)
-      // saving error
-    }
-}
-
 export default function AuthPage({ navigation }) {
     const [isSignedIn, setIsSignedIn] = useState('false');
     const [email, SetEmail] = useState('');
     const [password, SetPassword] = useState('');
-    getSignIn().then((teste)=>{
+    getItem('SignIn').then((teste)=>{
         setIsSignedIn(teste);
     });
     const handleSignIn = () => {
         signInWithEmailAndPassword(auth, email, password)
         .then((re) => {
             setIsSignedIn('true');
-            storeSignIn('true');
+            storeItem('SignIn', 'true');
         });
     };
     useEffect(() => {
@@ -55,7 +35,35 @@ export default function AuthPage({ navigation }) {
             navigation.navigate("Home")
         }
     }, [isSignedIn]);
-    console.log(email)
+
+    async function signInWithGoogleAsync() {
+        try {
+            const result = await Google.logInAsync({
+            androidClientId: '792117341968-0k726d33egg0rnndv9s24ue1av97mff4.apps.googleusercontent.com',
+            //   iosClientId: YOUR_CLIENT_ID_HERE,
+            scopes: ['profile', 'email'],
+            });
+            if (result.type === 'success') {
+                const { idToken, accessToken } = result;
+                const credential = GoogleAuthProvider.credential(
+                    idToken,
+                    accessToken
+                );
+
+                signInWithCredential(auth, credential);
+                setIsSignedIn('true');
+                storeItem('SignIn', 'true');
+                return 
+            } 
+            else {
+            return { cancelled: true };
+            }
+        }
+        catch (e) {
+            console.log(e)
+            return { error: true };
+        }
+    }
     return (
         <HideKeyboard>
             <View keyboardShouldPersistTaps='handled' style={{backgroundColor: 'white', height: '100%'}}>
@@ -100,16 +108,10 @@ export default function AuthPage({ navigation }) {
                     <View style={Divider.line} />
                 </View>
                 <View style={GoogleLogin.container}>
-                    <TouchableOpacity style={GoogleLogin.loginButton}>
+                    <TouchableOpacity style={GoogleLogin.loginButton} onPress={signInWithGoogleAsync}>
                         <Ionic name="logo-google" size={25} style={GoogleLogin.logo}/>
                         <Text style={GoogleLogin.text}>
                             Google
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={FacebookLogin.loginButton}>
-                        <Ionic name="logo-facebook" size={25} style={GoogleLogin.logo}/>
-                        <Text style={FacebookLogin.text}>
-                            Facebook
                         </Text>
                     </TouchableOpacity>
                 </View>

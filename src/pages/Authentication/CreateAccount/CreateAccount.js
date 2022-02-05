@@ -1,9 +1,11 @@
 import { Text, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback, View, Image } from 'react-native';
 import { TextInputStyle, LoginButton, BackButton, Logo, Divider, FacebookLogin, GoogleLogin } from './styles'
 import Ionic from 'react-native-vector-icons/Ionicons'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { auth } from '../../../../firebase';
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { getItem, storeItem } from '../../../utils/AsyncStorage'
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from "firebase/auth"
+import * as Google from 'expo-google-app-auth';
 
 const HideKeyboard = ({ children }) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -26,6 +28,41 @@ export default function CreateAccount({ navigation }) {
                 navigation.navigate('Home')
             }  
         })
+    }
+
+    useEffect(() => {
+        if ( isSignedIn === 'true') {
+            navigation.navigate("Home")
+        }
+    }, [isSignedIn]);
+
+    async function signInWithGoogleAsync() {
+        try {
+            const result = await Google.logInAsync({
+            androidClientId: '792117341968-0k726d33egg0rnndv9s24ue1av97mff4.apps.googleusercontent.com',
+            //   iosClientId: YOUR_CLIENT_ID_HERE,
+            scopes: ['profile', 'email'],
+            });
+            if (result.type === 'success') {
+                const { idToken, accessToken } = result;
+                const credential = GoogleAuthProvider.credential(
+                    idToken,
+                    accessToken
+                );
+
+                signInWithCredential(auth, credential);
+                setIsSignedIn('true');
+                storeItem('SignIn', 'true');
+                return 
+            } 
+            else {
+            return { cancelled: true };
+            }
+        }
+        catch (e) {
+            console.log(e)
+            return { error: true };
+        }
     }
     
   return (
@@ -87,7 +124,7 @@ export default function CreateAccount({ navigation }) {
                 <View style={Divider.line} />
             </View>
             <View style={GoogleLogin.container}>
-                <TouchableOpacity style={GoogleLogin.loginButton}>
+                <TouchableOpacity style={GoogleLogin.loginButton} onPress={signInWithGoogleAsync}>
                     <Ionic name="logo-google" size={25} style={GoogleLogin.logo}/>
                     <Text style={GoogleLogin.text}>
                         Google
